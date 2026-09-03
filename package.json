@@ -1,0 +1,27 @@
+{
+  "name": "loxley",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The x402 rail for Robinhood Chain: chain registry, facilitator, facilitator router, settlement explorer, and escrow.",
+  "license": "Apache-2.0",
+  "packageManager": "pnpm@10.32.1",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "pnpm -r --filter './packages/*' run build && pnpm -r --filter './apps/*' run build",
+    "test": "pnpm -r run test",
+    "typecheck": "pnpm -r run typecheck",
+    "contracts:build": "cd contracts && forge build",
+    "contracts:test": "cd contracts && forge test -vv",
+    "facilitator": "pnpm --filter @loxley/facilitator start",
+    "scan": "pnpm --filter @loxley/scan start",
+    "web": "pnpm --filter @loxley/web dev"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3",
+      "esbuild"
+    ]
+  }
+}

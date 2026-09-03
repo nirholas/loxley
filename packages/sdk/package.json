@@ -1,0 +1,33 @@
+{
+  "name": "@loxley/sdk",
+  "version": "0.1.0",
+  "description": "x402 on Robinhood Chain for buyers and sellers: a health-scored facilitator router with failover, a payer client for USDG over Permit2, and approval helpers.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@loxley/chain": "workspace:*"
+  },
+  "peerDependencies": {
+    "@x402/core": "^2.24.0",
+    "@x402/evm": "^2.24.0",
+    "@x402/fetch": "^2.24.0",
+    "viem": "^2.0.0"
+  },
+  "devDependencies": {
+    "@x402/core": "^2.24.0",
+    "@x402/evm": "^2.24.0",
+    "@x402/fetch": "^2.24.0",
+    "typescript": "^5.7.3",
+    "viem": "^2.48.0",
+    "vitest": "^3.0.0"
+  }
+}

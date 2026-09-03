@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Loxley: the x402 rail for Robinhood Chain</title>
+<meta name="description" content="Open facilitator, facilitator router, settlement explorer, escrow and agent identity for x402 payments in USDG on Robinhood Chain (eip155:4663).">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap">
+<style>
+:root{--bg:#0e1116;--panel:#151920;--line:#252b36;--ink:#e8ebf0;--dim:#8d95a5;--green:#4fd18b;--green-ink:#0d3b26;--amber:#e9b25c;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;--sans:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;--serif:"Newsreader",Georgia,serif}
+@media (prefers-color-scheme:light){:root{--bg:#f4f5f8;--panel:#fff;--line:#dfe3ea;--ink:#12151b;--dim:#5b6373;--green:#1a7a4c;--green-ink:#e2f1e8;--amber:#a6640f}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 var(--serif);-webkit-font-smoothing:antialiased}
+a{color:inherit}.wrap{max-width:1100px;margin:0 auto;padding:0 24px}
+nav{display:flex;justify-content:space-between;align-items:center;padding:22px 0;font-family:var(--sans);font-size:14px}
+nav .brand{font-weight:800;font-size:18px;letter-spacing:-.02em;text-decoration:none}nav .links a{margin-left:18px;text-decoration:none;color:var(--dim)}nav .links a:hover{color:var(--ink)}
+.hero{padding:56px 0 40px;border-bottom:1px solid var(--line)}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--green)}
+h1{font-family:var(--sans);font-size:clamp(38px,6.4vw,66px);line-height:1.02;letter-spacing:-.03em;margin:14px 0 0;font-weight:800;max-width:14ch;text-wrap:balance}
+.deck{font-size:21px;max-width:58ch;color:var(--dim);margin:20px 0 0}.deck b{color:var(--ink);font-weight:500}
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin:28px 0 0;font-family:var(--sans)}
+.btn{display:inline-block;padding:11px 16px;border:1px solid var(--line);text-decoration:none;font-weight:600;font-size:14px;border-radius:3px}
+.btn.primary{background:var(--green);color:var(--green-ink);border-color:var(--green)}.btn:hover{border-color:var(--ink)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin:34px 0 0;font-family:var(--sans)}
+.fact{background:var(--panel);padding:14px 16px}.fact .k{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}.fact .v{font-family:var(--mono);font-size:18px;margin-top:4px}.fact .v small{font-size:12px;color:var(--dim)}
+section{padding:48px 0;border-bottom:1px solid var(--line)}
+h2{font-family:var(--sans);font-size:clamp(24px,3.2vw,32px);letter-spacing:-.02em;margin:0 0 8px;text-wrap:balance}
+.lede{color:var(--dim);max-width:62ch;margin:0 0 26px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+.card{background:var(--panel);border:1px solid var(--line);padding:20px}.card h3{font-family:var(--sans);font-size:17px;margin:0 0 6px;letter-spacing:-.01em}.card p{margin:0;color:var(--dim);font-size:15.5px}
+.card .tag{font-family:var(--mono);font-size:11px;color:var(--green);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;display:block}
+pre{background:var(--panel);border:1px solid var(--line);padding:16px;overflow-x:auto;font:13.5px/1.55 var(--mono);margin:0}code{font-family:var(--mono)}
+.step{display:grid;grid-template-columns:36px 1fr;gap:14px;margin:0 0 22px}.step .n{font-family:var(--mono);color:var(--green);font-size:13px;padding-top:4px}.step h3{font-family:var(--sans);font-size:17px;margin:0 0 6px}.step p{margin:0 0 10px;color:var(--dim)}
+.why{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:22px}.why h3{font-family:var(--sans);font-size:16px;margin:0 0 6px}.why p{margin:0;color:var(--dim);font-size:15.5px}
+footer{padding:28px 0 48px;color:var(--dim);font-family:var(--mono);font-size:12.5px;line-height:1.8}footer a{color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav><a class="brand" href="/">Loxley</a><div class="links"><a href="#facilitator">Facilitator</a><a href="#sdk">SDK</a><a href="#scan">Scan</a><a href="#escrow">Escrow</a><a href="#identity">Identity</a><a href="https://github.com/nirholas/loxley">GitHub</a></div></nav>
+
+<header class="hero">
+<div class="kicker">x402 on Robinhood Chain · eip155:4663 · USDG</div>
+<h1>The payment rail agents use on Robinhood Chain.</h1>
+<p class="deck">Robinhood Chain shipped with a stablecoin that has <b>no EIP-3009 and no EIP-2612</b>, so every x402 payment on it runs through Permit2, and until now through one hosted facilitator at a time. Loxley is the open rail: a self-hostable facilitator, a router that fails over between facilitators, a settlement explorer, an escrow with attested refunds, and ERC-8004 agent identity. All of it on the canonical contracts, all of it Apache-2.0.</p>
+<div class="cta"><a class="btn primary" href="#quickstart">Start paying in USDG</a><a class="btn" href="https://github.com/nirholas/loxley">Read the source</a><a class="btn" href="#scan">Open Loxley Scan</a></div>
+<div class="facts">
+<div class="fact"><div class="k">Chain</div><div class="v">4663 <small>Arbitrum Orbit</small></div></div>
+<div class="fact"><div class="k">Payment unit</div><div class="v">USDG <small>6 decimals</small></div></div>
+<div class="fact"><div class="k">Transfer path</div><div class="v">Permit2 <small>witness</small></div></div>
+<div class="fact"><div class="k">Settle gas</div><div class="v">~102k <small>≈ 0.00003 ETH</small></div></div>
+<div class="fact"><div class="k">Exact proxy</div><div class="v">0x4020…0001</div></div>
+<div class="fact"><div class="k">License</div><div class="v">Apache-2.0</div></div>
+</div>
+</header>
+
+<section id="why">
+<h2>What was missing</h2>
+<p class="lede">The reference x402 SDKs know Base and Solana. Robinhood Chain had facilitators, but no rail.</p>
+<div class="why">
+<div><h3>Clients refused to pay</h3><p>USDG is not a registered default asset, so a stock reference client rejects a 4663 quote before it ever signs. Loxley registers it upstream and ships the runtime shim until that lands.</p></div>
+<div><h3>One facilitator, one point of failure</h3><p>Every seller pointed at a single hosted verify/settle endpoint. The router scores facilitators by latency and benches the ones that fail, without ever retrying a settle that might have landed.</p></div>
+<div><h3>No approval path for fresh wallets</h3><p>Without EIP-2612 a payer needs one on-chain approve() and the ETH to pay for it. The facilitator grants exactly that gas to wallets that hold USDG and nothing else.</p></div>
+<div><h3>Nobody could see the economy</h3><p>Eleven thousand settlements had happened on the canonical proxy with no explorer. Loxley Scan indexes every one and ranks facilitators, payees and payers.</p></div>
+<div><h3>Bad responses were just losses</h3><p>A paid call that returns garbage was unrecoverable. The escrow holds the exact price until an attestor signs a receipt, and refunds on rejection or silence.</p></div>
+<div><h3>Agents had no identity here</h3><p>ERC-8004 registries exist on Base and Arbitrum. Loxley deploys the reference registries deterministically to 4663 and 46630.</p></div>
+</div>
+</section>
+
+<section id="quickstart">
+<h2>Quickstart</h2>
+<p class="lede">Three sides of a payment. Each is a few lines on top of the reference x402 packages.</p>
+<div class="step"><div class="n">buyer</div><div><h3>Pay a 402 in USDG</h3><p>Wrap fetch. The first call on a fresh wallet needs a one-time Permit2 approval, which the SDK sends for you.</p>
+<pre><code>import { createWalletClient, http, publicActions } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { robinhoodChain, createRobinhoodPayer, ensurePermit2Approval } from "@loxley/sdk";
+
+const wallet = createWalletClient({ account: privateKeyToAccount(KEY), chain: robinhoodChain, transport: http() }).extend(publicActions);
+await ensurePermit2Approval(wallet, "eip155:4663");
+const pay = createRobinhoodPayer(wallet);
+const quote = await pay("https://quotes.example/aapl");</code></pre></div></div>
+<div class="step"><div class="n">seller</div><div><h3>Charge for an endpoint, with failover</h3><p>Drop the router in where a single facilitator URL used to go. It merges /supported across facilitators and routes by health.</p>
+<pre><code>import { x402ResourceServer } from "@x402/core/server";
+import { ExactEvmScheme } from "@x402/evm/exact/server";
+import { FacilitatorRouter, KNOWN_FACILITATORS, registerRobinhoodMoneyParser } from "@loxley/sdk";
+
+const server = new x402ResourceServer(new FacilitatorRouter(KNOWN_FACILITATORS, { requireNetwork: "eip155:4663" }));
+server.register("eip155:*", new ExactEvmScheme());
+registerRobinhoodMoneyParser(server); // "$0.01" now means 10000 atomic USDG on 4663</code></pre></div></div>
+<div class="step"><div class="n">operator</div><div><h3>Run your own facilitator</h3><p>One key with a little ETH. It journals every verify and settle, catalogs Bazaar declarations, and replays receipts instead of re-broadcasting.</p>
+<pre><code>git clone https://github.com/nirholas/loxley && cd loxley && pnpm install
+cp .env.example .env   # set FACILITATOR_PRIVATE_KEY
+pnpm facilitator       # http://localhost:4663/supported</code></pre></div></div>
+</section>
+
+<section id="facilitator">
+<h2>Facilitator</h2>
+<p class="lede">The reference <code>@x402/core</code> facilitator with everything an operator actually needs around it.</p>
+<div class="grid">
+<div class="card"><span class="tag">schemes</span><h3>exact and upto on 4663 and 46630</h3><p>Permit2 witness settlements through the audited canonical proxies. ERC-20 approval gas sponsoring for tokens without EIP-2612, which on this chain is the only kind.</p></div>
+<div class="card"><span class="tag">safety</span><h3>Idempotent settle</h3><p>Every settle is keyed on a canonical hash of the signed payload. A retry after a timeout returns the original receipt instead of broadcasting twice.</p></div>
+<div class="card"><span class="tag">discovery</span><h3>Persisted Bazaar catalog</h3><p>Sellers that declare the discovery extension are catalogued on first verified payment and served at /discovery/resources with search, type filters and settle counts.</p></div>
+<div class="card"><span class="tag">onboarding</span><h3>Approval gas grants</h3><p>POST /gas-grant sends a fresh USDG holder exactly the ETH for one approve(). Once per address, only while unapproved, only while the facilitator holds its reserve.</p></div>
+<div class="card"><span class="tag">ops</span><h3>/health, /stats, /metrics</h3><p>Signer balances and block heights per network, settlement and verification counters, settled volume by asset, in JSON and Prometheus text.</p></div>
+<div class="card"><span class="tag">tested</span><h3>End to end on a fork</h3><p><code>pnpm --filter @loxley/facilitator e2e</code> forks mainnet with anvil, funds a payer with real USDG, pays through the reference client, settles, replays, and grants gas.</p></div>
+</div>
+</section>
+
+<section id="sdk">
+<h2>SDK</h2>
+<p class="lede"><code>@loxley/chain</code> is the registry. <code>@loxley/sdk</code> is the router and the payer.</p>
+<div class="grid">
+<div class="card"><span class="tag">@loxley/chain</span><h3>Chain 4663 as data</h3><p>viem chain definitions, USDG and Permit2 addresses, the canonical proxy addresses, a strict USD to atomic parser, and a money parser that teaches any x402 resource server what a dollar means here.</p></div>
+<div class="card"><span class="tag">FacilitatorRouter</span><h3>Health-scored failover</h3><p>EWMA latency, consecutive-failure benching with cooldown, network-aware candidate filtering from merged /supported. Verify fails over freely; settle only on pre-broadcast transport errors.</p></div>
+<div class="card"><span class="tag">createRobinhoodPayer</span><h3>fetch that pays</h3><p>The reference exact EVM client registered for both networks, with spend controls opened for USDG so a stock client stops rejecting 4663 quotes.</p></div>
+</div>
+</section>
+
+<section id="scan">
+<h2>Loxley Scan</h2>
+<p class="lede">The settlement explorer. Indexes settle() and settleWithPermit() on the canonical proxies, decodes payer, payee, facilitator and amount from calldata and receipts, and ranks everyone.</p>
+<div class="grid">
+<div class="card"><span class="tag">indexer</span><h3>Log windows with backoff</h3><p>Runs on the public RPC with 20k-block windows and exponential backoff, or on Alchemy with bigger ones. Cursor-based, resumable, idempotent inserts.</p></div>
+<div class="card"><span class="tag">api</span><h3>JSON for everything</h3><p>/api/overview, /api/settlements, /api/facilitators, /api/payees, /api/payers, /api/daily, /api/status. Filter settlements by any party.</p></div>
+<div class="card"><span class="tag">ui</span><h3>Server-rendered, no build</h3><p>Overview tiles, a 30-day chart, leaderboards, per-address pages split by role, per-transaction detail with gas cost in ETH.</p></div>
+</div>
+</section>
+
+<section id="escrow">
+<h2>LoxleyEscrow</h2>
+<p class="lede">Per-request escrow with an attested release. Non-upgradeable, no admin, no pause.</p>
+<pre><code>open(permit, payer, EscrowWitness{requestId, payee, attestor, deadline, schemaHash}, signature)
+   payer signs one Permit2 witness transfer; the facilitator submits it; funds sit in the contract
+release(Receipt{requestId, responseHash, status, accepted: true}, attestorSig)   -> payee (minus feeBps)
+refund (Receipt{..., accepted: false}, attestorSig)                            -> payer
+reclaim(requestId)   after deadline, anyone                                    -> payer</code></pre>
+<p style="color:var(--dim);margin:14px 0 0">13 unit tests against the real Permit2 bytecode, a fuzz invariant on value conservation, and a fork test against live USDG on 4663. Deploys deterministically to the same address on mainnet and testnet through the Arachnid CREATE2 deployer.</p>
+</section>
+
+<section id="identity">
+<h2>Agent identity</h2>
+<p class="lede">The ERC-8004 reference registries (Identity, Reputation, Validation) deployed to Robinhood Chain with deterministic addresses, plus a testnet USDG with a built-in faucet so a hackathon team spends day one on product.</p>
+<pre><code>forge script script/DeployAgentRegistries.s.sol --rpc-url $RHC_TESTNET_RPC_URL --broadcast
+forge script script/DeployMockUSDG.s.sol         --rpc-url $RHC_TESTNET_RPC_URL --broadcast   # testnet only, refuses 4663
+cast send $MOCK_USDG "drip()" --rpc-url $RHC_TESTNET_RPC_URL                                   # 1,000 USDG per day per address</code></pre>
+</section>
+
+<footer>Loxley · Apache-2.0 · <a href="https://github.com/nirholas/loxley">github.com/nirholas/loxley</a><br>Built on the reference x402 packages, Uniswap Permit2, the canonical x402 Permit2 proxies, and the ERC-8004 reference implementation. Not affiliated with Robinhood.</footer>
+</div>
+</body>
+</html>

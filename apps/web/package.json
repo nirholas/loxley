@@ -1,0 +1,12 @@
+{
+  "name": "@loxley/web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "loxley.dev landing page. Static: serve the directory as-is.",
+  "license": "Apache-2.0",
+  "scripts": {
+    "dev": "npx --yes serve -l 4665 .",
+    "build": "node -e \"require('fs').existsSync('index.html') || process.exit(1)\"",
+    "test": "node -e \"process.exit(0)\""
+  }
+}

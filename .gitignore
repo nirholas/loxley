@@ -1,0 +1,16 @@
+node_modules/
+dist/
+build/
+.env
+.env.*
+!.env.example
+*.log
+*.db
+*.db-journal
+*.sqlite
+.DS_Store
+coverage/
+contracts/out/
+contracts/cache/
+contracts/broadcast/**/dry-run/
+.turbo/
