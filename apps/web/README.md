@@ -1,3 +1,3 @@
-# Loxley landing
+# @loxley/web
 
-Static `index.html`, no build. `pnpm dev` serves it on :4665. Deploy the directory to any static host as `loxley.dev`.
+The loxley.dev landing page. One static `index.html`, Google Fonts, no build. Serve the directory from any static host (`pnpm dev` runs a local server on :4665).

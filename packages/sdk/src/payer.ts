@@ -15,8 +15,6 @@ export type PayerOptions = {
   maxAmountPerPayment?: string | false;
   /** RPC override per network (public RPCs are rate limited). */
   rpcUrls?: Partial<Record<RobinhoodNetwork, string>>;
-  /** Refuse any single payment above this USD amount, e.g. "$1". Default: uncapped. */
-  maxAmountPerPayment?: string;
   fetch?: typeof globalThis.fetch;
 };
 

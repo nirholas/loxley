@@ -1,68 +1,64 @@
-# Operating a Loxley Facilitator
+# Loxley facilitator
 
-Source: [apps/facilitator](../apps/facilitator). Built on `@x402/core` + `@x402/evm`; adds persistence, idempotency, discovery, gas grants and metrics.
+A self-hostable x402 facilitator for Robinhood Chain, built on `@x402/core` and `@x402/evm`. One process, one signer key, SQLite on disk.
 
-## Configuration
+## Run it
 
-Every variable has a working default except the key. See [.env.example](../.env.example).
+```bash
+cp .env.example .env
+# FACILITATOR_PRIVATE_KEY=0x...   the signer; needs ETH on every network it serves
+pnpm facilitator
+```
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `FACILITATOR_PRIVATE_KEY` | required | Signer. Needs ETH on each served network. |
-| `FACILITATOR_NETWORKS` | `eip155:4663,eip155:46630` | Networks to register. |
+| `FACILITATOR_PRIVATE_KEY` | required | Settles transactions and pays gas. Keep ETH on it. |
+| `FACILITATOR_NETWORKS` | `eip155:4663,eip155:46630` | Networks to register. Only Robinhood Chain networks are accepted. |
 | `FACILITATOR_PORT` | `4663` | |
-| `FACILITATOR_DB` | `./data/facilitator.db` | SQLite (WAL). `:memory:` for tests. |
-| `RHC_MAINNET_RPC_URL`, `RHC_TESTNET_RPC_URL` | public RPCs | Use Alchemy/QuickNode in production. |
+| `FACILITATOR_DB` | `./data/facilitator.db` | SQLite journal + catalog. `:memory:` for tests. |
+| `RHC_MAINNET_RPC_URL` / `RHC_TESTNET_RPC_URL` | public RPCs | Use a provider URL in production. |
 | `GAS_GRANT_WEI` | `50000000000000` (0.00005 ETH) | ETH sent per approval gas grant. |
-| `GAS_GRANT_MIN_USDG` | `1000000` (1 USDG) | Minimum USDG a grantee must hold. |
-| `GAS_GRANT_RESERVE_WEI` | `2e15` | Stop granting below this signer balance. |
-| `EIP6492_FACTORIES` | empty | Trusted smart-wallet factories for counterfactual payers. |
+| `GAS_GRANT_MIN_USDG` | `1000000` (1 USDG) | Minimum USDG a wallet must hold to receive a grant. |
+| `GAS_GRANT_RESERVE_WEI` | `2000000000000000` (0.002 ETH) | Grants stop when the signer would drop below this. |
+| `EIP6492_FACTORIES` | empty | Comma-separated smart-wallet factories allowed for counterfactual deploys. Empty disables. |
 
 ## Endpoints
 
-| Method | Path | Notes |
+| Method | Path | What |
 |---|---|---|
-| GET | `/` | Manifest: networks, signer addresses, contract addresses. |
-| GET | `/supported` | Reference shape: `kinds`, `extensions`, `signers`. |
-| POST | `/verify` | `{ paymentPayload, paymentRequirements }` -> `VerifyResponse`. |
-| POST | `/settle` | Same body -> `SettleResponse`. Idempotent on the payload hash: a retry returns the original receipt and sets `X-Loxley-Idempotent-Replay: true`. |
-| GET | `/discovery/resources` | Bazaar list. `?q=`, `?type=`, `?limit=`, `?offset=`. Catalogued from sellers that declare the discovery extension, ranked by settled count. |
-| POST | `/gas-grant` | `{ address, network? }`. See below. |
-| GET | `/health` | Signer balances and head blocks per network; 503 if any signer is empty. |
-| GET | `/stats` | Journal aggregates. |
-| GET | `/metrics` | Prometheus. |
+| GET | `/` | Manifest: networks, signer addresses, contract addresses, endpoints. |
+| GET | `/supported` | The reference `getSupported()` response: kinds (`exact`, `upto` per network), extensions, signers. |
+| POST | `/verify` | `{ paymentPayload, paymentRequirements }` → `VerifyResponse`. |
+| POST | `/settle` | `{ paymentPayload, paymentRequirements }` → `SettleResponse`. Idempotent (below). |
+| GET | `/discovery/resources` | Bazaar catalog. Query: `type`, `q`, `limit` (≤100), `offset`. Ordered by settle count. |
+| POST | `/gas-grant` | `{ address, network? }` → funds one `approve(Permit2)` for a qualifying wallet. |
+| GET | `/health` | Per-network signer balance and block height; 503 when any signer is empty. |
+| GET | `/stats` | Counters and settled volume by asset. |
+| GET | `/metrics` | The same as Prometheus text. |
 
-## Idempotency
+## What the reference facilitator does not do, and this one does
 
-The payload hash is SHA-256 over the payment payload with keys sorted at every depth. Before settling, the facilitator looks the hash up; a prior success short-circuits to the stored transaction, so a seller retrying after a network blip never causes a second broadcast (which would fail on Permit2's nonce anyway, but would cost gas and time). Failures are journaled too, with the reason.
+**Idempotent settle.** Every settle is keyed on a SHA-256 of the payment payload with object keys sorted at every depth (`canonicalJson`). A second `/settle` with the same signed payload returns the original `SettleResponse` with `X-Loxley-Idempotent-Replay: true` and never re-broadcasts. Inside the reference lifecycle the same check runs in `onBeforeSettle`, so a race between two identical requests resolves to one transaction.
 
-## Gas grants
+**Journal.** `verifications` and `settlements` tables record network, scheme, payer, payee, asset, amount, resource URL, tx hash, outcome and latency for every call. `/stats` and `/metrics` read from them.
 
-USDG has no EIP-2612, so the one-time Permit2 approval is an on-chain transaction the payer must send. A wallet funded only with USDG (the normal case for an agent that just got paid) cannot send it. `/gas-grant` transfers `GAS_GRANT_WEI` to such a wallet when all of the following hold:
+**Persisted discovery catalog.** When a verified payment carries the Bazaar discovery extension, the resource is upserted into `resources` and served from `/discovery/resources`, with `settle_count` incremented on each successful settle so the most-used endpoints rank first.
 
-1. valid address, not the facilitator itself;
-2. no prior grant to that address on that network (journaled, primary key);
-3. USDG balance at least `GAS_GRANT_MIN_USDG`;
-4. Permit2 allowance is zero (a grant to an approved wallet is pointless);
-5. ETH balance below the grant amount;
-6. the facilitator stays above `GAS_GRANT_RESERVE_WEI` after paying.
+**Approval gas grants.** USDG has no EIP-2612, so a fresh wallet needs an on-chain `approve(Permit2)` and ETH to pay for it. `POST /gas-grant` sends `GAS_GRANT_WEI` when all of the following hold: the address is valid and not the signer; no prior grant exists for that address on that network; the wallet holds at least `GAS_GRANT_MIN_USDG`; its Permit2 allowance is zero; its ETH balance is below the grant; the signer keeps `GAS_GRANT_RESERVE_WEI` after paying. Refusals return `400` with a `reason` from `invalid_address`, `insufficient_usdg`, `already_approved`, `has_gas`, `facilitator_reserve`, `unsupported_network`.
 
-At 0.32 gwei an approve costs about 0.000015 ETH, so the default grant covers it three times over and a full ETH funds twenty thousand new payers.
+**ERC-20 approval gas sponsoring.** Registered with a per-network signer, so a client that pre-signs its own `approve()` can have the facilitator broadcast it ahead of settlement (the reference extension). The EIP-2612 extension is also registered for completeness; it has nothing to do on USDG.
 
-## Journal schema
-
-`settlements(payload_hash PK, network, scheme, payer, pay_to, asset, amount, resource, tx_hash, success, error_reason, latency_ms, created_at)`, `verifications(...)`, `resources(resource PK, type, x402_version, accepts_json, last_updated, description, mime_type, service_name, tags_json, icon_url, extensions_json, settle_count)`, `gas_grants(address, network, tx_hash, amount_wei, created_at)`.
-
-## Running it
+## Testing
 
 ```bash
-pnpm facilitator                          # tsx, from source
-pnpm --filter @loxley/facilitator build   # tsc to dist/
-node apps/facilitator/dist/src/index.js
+pnpm --filter @loxley/facilitator test    # config, canonical hashing, journal, catalog, grants
+pnpm --filter @loxley/facilitator e2e     # anvil fork of mainnet; see scripts/e2e.ts
 ```
 
-Put it behind TLS, point `PUBLIC_URL` at it, and register it in the x402 ecosystem directory (`typescript/site/app/ecosystem/partners-data/<name>/metadata.json` upstream) with category `Facilitator`.
+The e2e forks Robinhood Chain, writes a USDG balance into the payer's storage slot (slot 1 of the proxy), funds ETH, approves Permit2, boots the facilitator in-process against the fork, builds a payment with the reference `x402Client` + `registerExactEvmScheme`, and asserts: `/verify` valid, `/settle` moves exactly 0.01 USDG payer → payee, a replayed `/settle` returns the same receipt without a second debit, `/stats` and `/metrics` reflect it, and `/gas-grant` funds a fresh USDG holder once.
 
-## Proving it works
+## Operating notes
 
-`pnpm --filter @loxley/facilitator e2e` forks mainnet with anvil, funds a payer with USDG by writing its balance slot (slot 1), approves Permit2, boots the facilitator against the fork, builds a payment with the reference `x402Client`, and asserts: verify ok, settle ok with USDG moved payer -> payee, replayed settle returns the same tx without a second debit, stats and metrics reflect it, and a gas grant lands exactly once.
+- Keep two signers if you serve both networks from one process? No: one key works on both, balances are per chain. Fund it on each.
+- The public RPC is enough for a low-volume facilitator. Verification simulates the settle; settlement waits for the receipt. Expect roughly 1 to 3 seconds per settle at Robinhood Chain block times.
+- Back up `FACILITATOR_DB`. Losing it does not lose funds, but it does lose idempotency history and the catalog.
