@@ -96,7 +96,7 @@ The "computed" rows are the CREATE2 addresses the deploy scripts will produce; t
 
 ## Upstream
 
-`upstream/x402-robinhood-chain.patch` registers USDG as the default asset for `eip155:4663` in the TypeScript, Go and Python x402 SDKs and the network support docs, following the project's `DEFAULT_ASSETS.md`. Until that merges, `registerRobinhoodMoneyParser()` and `createRobinhoodPayer()` cover the gap at runtime.
+Registering USDG as the default asset for `eip155:4663` in the TypeScript, Go and Python x402 SDKs is in flight upstream (`x402-foundation/x402`, commit `d14d260`, not yet in a published release as of `@x402/evm` 2.24.0). Until a release ships it, `registerRobinhoodMoneyParser()` (servers) and `createRobinhoodPayer()` (clients, via spend controls) cover the gap at runtime, and both keep working after.
 
 ## Layout
 
@@ -108,7 +108,6 @@ apps/scan             the explorer (indexer + API + UI)
 apps/web              landing page
 contracts             Foundry: src, test, script, lib (forge-std, OpenZeppelin v5, Permit2, ERC-8004 RI)
 docs                  documentation
-upstream              the x402 registry patch
 ```
 
 ## License

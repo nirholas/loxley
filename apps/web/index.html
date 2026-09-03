@@ -57,7 +57,7 @@ footer{padding:28px 0 48px;color:var(--dim);font-family:var(--mono);font-size:12
 <h2>What was missing</h2>
 <p class="lede">The reference x402 SDKs know Base and Solana. Robinhood Chain had facilitators, but no rail.</p>
 <div class="why">
-<div><h3>Clients refused to pay</h3><p>USDG is not a registered default asset, so a stock reference client rejects a 4663 quote before it ever signs. Loxley registers it upstream and ships the runtime shim until that lands.</p></div>
+<div><h3>Clients refused to pay</h3><p>USDG is not a registered default asset, so a stock reference client rejects a 4663 quote before it ever signs. Registration is in flight upstream; Loxley ships the runtime shim so reference clients and servers work on 4663 today.</p></div>
 <div><h3>One facilitator, one point of failure</h3><p>Every seller pointed at a single hosted verify/settle endpoint. The router scores facilitators by latency and benches the ones that fail, without ever retrying a settle that might have landed.</p></div>
 <div><h3>No approval path for fresh wallets</h3><p>Without EIP-2612 a payer needs one on-chain approve() and the ETH to pay for it. The facilitator grants exactly that gas to wallets that hold USDG and nothing else.</p></div>
 <div><h3>Nobody could see the economy</h3><p>Eleven thousand settlements had happened on the canonical proxy with no explorer. Loxley Scan indexes every one and ranks facilitators, payees and payers.</p></div>

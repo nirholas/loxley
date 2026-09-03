@@ -34,7 +34,7 @@ Consequences for x402:
 
 1. The only gasless signing path is **Permit2 `permitWitnessTransferFrom`**. Every facilitator on this chain settles through Permit2.
 2. The payer needs a **one-time on-chain `approve(Permit2)`**. There is no EIP-2612 permit to sponsor, so the reference SDK's EIP-2612 gas-sponsoring extension does nothing here; the ERC-20 approval extension only broadcasts a transaction the payer already signed and pays gas for. A wallet that holds USDG and no ETH cannot self-onboard, which is what the Loxley facilitator's `/gas-grant` endpoint exists for.
-3. USDG is not a registered default asset in the published x402 SDKs (as of `@x402/core` 2.24), so a reference client rejects a 4663 quote with `spendControls` unless the asset is allow-listed. `@loxley/sdk` does that for you; `upstream/x402-robinhood-chain.patch` fixes it at the source.
+3. USDG is not a registered default asset in the published x402 SDKs (as of `@x402/core` 2.24), so a reference client rejects a 4663 quote with `spendControls` unless the asset is allow-listed. `@loxley/sdk` does that for you; the upstream registration (commit `d14d260` in `x402-foundation/x402`) fixes it at the source once released.
 
 Testnet has no USDG at the mainnet address. `contracts/src/MockUSDG.sol` is the testnet stand-in: same name, symbol and decimals, same absence of EIP-3009/EIP-2612, plus a `drip()` faucet.
 
