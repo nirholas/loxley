@@ -55,7 +55,7 @@ pnpm --filter @loxley/facilitator test    # config, canonical hashing, journal, 
 pnpm --filter @loxley/facilitator e2e     # anvil fork of mainnet; see scripts/e2e.ts
 ```
 
-The e2e forks Robinhood Chain, writes a USDG balance into the payer's storage slot (slot 1 of the proxy), funds ETH, approves Permit2, boots the facilitator in-process against the fork, builds a payment with the reference `x402Client` + `registerExactEvmScheme`, and asserts: `/verify` valid, `/settle` moves exactly 0.01 USDG payer → payee, a replayed `/settle` returns the same receipt without a second debit, `/stats` and `/metrics` reflect it, and `/gas-grant` funds a fresh USDG holder once.
+The e2e generates fresh payer and facilitator keys on every run. Do not swap in the well-known anvil keys: on Robinhood Chain those addresses are EIP-7702 delegated, so Permit2 routes their signatures through `isValidSignature()` and every settle reverts (see the chain reference). The e2e forks Robinhood Chain, writes a USDG balance into the payer's storage slot (slot 1 of the proxy), funds ETH, approves Permit2, boots the facilitator in-process against the fork, builds a payment with the reference `x402Client` + `registerExactEvmScheme`, and asserts: `/verify` valid, `/settle` moves exactly 0.01 USDG payer → payee, a replayed `/settle` returns the same receipt without a second debit, `/stats` and `/metrics` reflect it, and `/gas-grant` funds a fresh USDG holder once.
 
 ## Operating notes
 

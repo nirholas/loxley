@@ -9,7 +9,7 @@
  */
 import { spawn, type ChildProcess } from "node:child_process";
 import { createWalletClient, http, publicActions, erc20Abi, keccak256, encodeAbiParameters, toHex, pad, maxUint256, parseEther } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
+import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { x402Client } from "@x402/core/client";
 import type { PaymentRequired, PaymentRequirements } from "@x402/core/types";
 import { toClientEvmSigner } from "@x402/evm";
@@ -27,9 +27,12 @@ const ANVIL_PORT = 8545 + Math.floor(Math.random() * 500);
 const ANVIL = `http://127.0.0.1:${ANVIL_PORT}`;
 const FACILITATOR_PORT = 9400 + Math.floor(Math.random() * 500);
 
-const FACILITATOR_KEY = "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d" as const; // anvil #1
-const PAYER_KEY = "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a" as const; // anvil #2
-const PAYEE = "0x000000000000000000000000000000000000dEaD" as const;
+// Fresh keys every run. Anvil's well-known default accounts already carry EIP-7702 delegations on
+// live Robinhood Chain (anyone can set one with a public key), which makes Permit2 take the ERC-1271
+// path and reject a plain ECDSA signature. Random keys have no code anywhere.
+const FACILITATOR_KEY = generatePrivateKey();
+const PAYER_KEY = generatePrivateKey();
+const PAYEE = privateKeyToAccount(generatePrivateKey()).address;
 const USDG_BALANCES_SLOT = 1n;
 
 let anvil: ChildProcess | undefined;
@@ -154,7 +157,7 @@ async function main() {
   console.log((await (await fetch(`${F}/metrics`)).text()).split("\n").filter((l) => l.startsWith("loxley_settle")).join("\n"));
 
   step("POST /gas-grant for a fresh USDG holder with no ETH");
-  const fresh = privateKeyToAccount("0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6");
+  const fresh = privateKeyToAccount(generatePrivateKey());
   const freshSlot = keccak256(encodeAbiParameters([{ type: "address" }, { type: "uint256" }], [fresh.address, USDG_BALANCES_SLOT]));
   await rpc("anvil_setStorageAt", [USDG_ADDRESS, freshSlot, pad(toHex(5_000_000n))]);
   const grant = (await (await fetch(`${F}/gas-grant`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ address: fresh.address, network: ROBINHOOD_CHAIN }) })).json()) as { ok: boolean; txHash?: string; reason?: string };

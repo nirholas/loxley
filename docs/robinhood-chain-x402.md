@@ -63,6 +63,10 @@ From mainnet tx `0x2bc1f32b553d820c3b7929ba50ccee2ffe23da826d1caf8a7590aa3a6ee66
 
 The facilitator pays that fee. At the time of writing the Exact proxy had 11,693 settlement transactions, almost all from a single facilitator signer, at a cadence of roughly one a minute.
 
+## A trap for test harnesses: well-known keys are EIP-7702 delegated here
+
+The anvil/hardhat default accounts (`0xf39F…2266`, `0x7099…79C8`, `0x3C44…93BC`, ...) carry an EIP-7702 delegation on Robinhood Chain mainnet (`eth_getCode` returns `0xef0100…8a5b10eb2faf57665f63709ec4b3943a3b005df6`). Their private keys are public, so a bot set delegations for them. Permit2 sees non-empty code, treats the payer as a contract and calls `isValidSignature()`, which the delegate does not implement, and the settle reverts with no data. Any fork-based test that pays from those addresses fails with `invalid_permit2_signature` even though the signature is fine. Generate fresh keys per run (`generatePrivateKey()` from viem); the Loxley e2e does.
+
 ## Who is already here
 
 | Name | What | Scheme |
