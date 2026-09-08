@@ -57,6 +57,12 @@ export const RPC_URLS: Record<RobinhoodNetwork, string> = {
   [ROBINHOOD_CHAIN_TESTNET]: "https://rpc.testnet.chain.robinhood.com",
 };
 
+/** Public endpoints that answered eth_chainId correctly on 2026-09-03, official first. All are rate limited. */
+export const PUBLIC_RPC_URLS: Record<RobinhoodNetwork, readonly string[]> = {
+  [ROBINHOOD_CHAIN]: [RPC_URLS[ROBINHOOD_CHAIN], "https://robinhood.drpc.org", "https://robinhood-rpc.publicnode.com"],
+  [ROBINHOOD_CHAIN_TESTNET]: [RPC_URLS[ROBINHOOD_CHAIN_TESTNET], "https://robinhood-testnet.drpc.org"],
+};
+
 export const EXPLORER_URLS: Record<RobinhoodNetwork, string> = {
   [ROBINHOOD_CHAIN]: "https://robinhoodchain.blockscout.com",
   [ROBINHOOD_CHAIN_TESTNET]: "https://robinhoodchain-testnet.blockscout.com",
@@ -66,7 +72,7 @@ export const robinhoodChain: Chain = defineChain({
   id: 4663,
   name: "Robinhood Chain",
   nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-  rpcUrls: { default: { http: [RPC_URLS[ROBINHOOD_CHAIN]] } },
+  rpcUrls: { default: { http: [...PUBLIC_RPC_URLS[ROBINHOOD_CHAIN]] } },
   blockExplorers: { default: { name: "Blockscout", url: EXPLORER_URLS[ROBINHOOD_CHAIN] } },
   contracts: { multicall3: { address: MULTICALL3_ADDRESS } },
 });
@@ -75,7 +81,7 @@ export const robinhoodChainTestnet: Chain = defineChain({
   id: 46630,
   name: "Robinhood Chain Testnet",
   nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-  rpcUrls: { default: { http: [RPC_URLS[ROBINHOOD_CHAIN_TESTNET]] } },
+  rpcUrls: { default: { http: [...PUBLIC_RPC_URLS[ROBINHOOD_CHAIN_TESTNET]] } },
   blockExplorers: { default: { name: "Blockscout", url: EXPLORER_URLS[ROBINHOOD_CHAIN_TESTNET] } },
   contracts: { multicall3: { address: MULTICALL3_ADDRESS } },
   testnet: true,
