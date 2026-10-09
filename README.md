@@ -113,3 +113,7 @@ docs                  documentation
 ## License
 
 Apache-2.0. Not affiliated with Robinhood Markets or Paxos.
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=nirholas/loxley&type=Date)](https://www.star-history.com/#nirholas/loxley&Date)
