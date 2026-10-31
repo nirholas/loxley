@@ -11,7 +11,7 @@ Verified against the live chain on 2026-09-03. Every address below was read from
 | Stack | Arbitrum Orbit (Nitro), blobs to Ethereum for DA | same |
 | Gas token | ETH | ETH |
 | Public RPC | `https://rpc.mainnet.chain.robinhood.com` | `https://rpc.testnet.chain.robinhood.com` |
-| Explorer | `https://robinhoodchain.blockscout.com` | `https://robinhoodchain-testnet.blockscout.com` |
+| Explorer | `https://robinhoodchain.blockscout.com` | `https://explorer.testnet.chain.robinhood.com` |
 | Mempool | none public; the sequencer feed is the only pre-execution view | same |
 
 The public RPC rate-limits `eth_getLogs` (a 50k-block window works, 1M does not) and returns `Too Many Requests` under bursts. Use Alchemy, QuickNode, Chainstack or dRPC for anything that indexes.
