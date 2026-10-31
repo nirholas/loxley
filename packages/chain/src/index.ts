@@ -65,7 +65,7 @@ export const PUBLIC_RPC_URLS: Record<RobinhoodNetwork, readonly string[]> = {
 
 export const EXPLORER_URLS: Record<RobinhoodNetwork, string> = {
   [ROBINHOOD_CHAIN]: "https://robinhoodchain.blockscout.com",
-  [ROBINHOOD_CHAIN_TESTNET]: "https://robinhoodchain-testnet.blockscout.com",
+  [ROBINHOOD_CHAIN_TESTNET]: "https://explorer.testnet.chain.robinhood.com",
 };
 
 export const robinhoodChain: Chain = defineChain({
