@@ -17,13 +17,13 @@ importers:
         specifier: workspace:*
         version: link:../../packages/chain
       '@x402/core':
-        specifier: ^2.14.0
+        specifier: ^2.24.0
         version: 2.24.0
       '@x402/evm':
-        specifier: ^2.14.0
+        specifier: ^2.24.0
         version: 2.24.0(typescript@5.9.3)
       '@x402/extensions':
-        specifier: ^2.14.0
+        specifier: ^2.24.0
         version: 2.24.0(typescript@5.9.3)
       better-sqlite3:
         specifier: ^11.10.0
@@ -97,10 +97,12 @@ importers:
         specifier: ^3.0.0
         version: 3.2.7(@types/node@22.20.1)(tsx@4.23.13)
 
+  apps/web: {}
+
   packages/chain:
     devDependencies:
       '@x402/core':
-        specifier: ^2.14.0
+        specifier: ^2.24.0
         version: 2.24.0
       typescript:
         specifier: ^5.7.3
@@ -119,13 +121,13 @@ importers:
         version: link:../chain
     devDependencies:
       '@x402/core':
-        specifier: ^2.14.0
+        specifier: ^2.24.0
         version: 2.24.0
       '@x402/evm':
-        specifier: ^2.14.0
+        specifier: ^2.24.0
         version: 2.24.0(typescript@5.9.3)
       '@x402/fetch':
-        specifier: ^2.14.0
+        specifier: ^2.24.0
         version: 2.24.0
       typescript:
         specifier: ^5.7.3
