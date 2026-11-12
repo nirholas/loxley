@@ -51,6 +51,17 @@ Behaviour:
 
 `KNOWN_FACILITATORS` lists the facilitators known to serve Robinhood Chain in the order Loxley recommends.
 
+Other facilitators serving eip155:4663 that you can add yourself:
+
+```ts
+const router = new FacilitatorRouter(
+  [...KNOWN_FACILITATORS, { url: "https://x402.t0ll.xyz", name: "toll", priority: 2 }],
+  { requireNetwork: "eip155:4663" },
+);
+```
+
+`x402.t0ll.xyz` supports `exact` only (no `upto`) and checks the payee against the seller's ERC-8004 `agentWallet` (ERC-8478). It rate-limits per payer and per payTo and answers over the limit with a 4xx, which the router treats as definitive, so keep it at the lowest priority.
+
 ### createRobinhoodPayer(wallet, options?)
 
 Returns a `fetch` that pays 402s in USDG on 4663 and 46630, using the reference exact EVM client. Opens the client's spend controls for USDG only, capped per payment at `options.maxAmountPerPayment` (atomic; default `"1000000"`, $1; `false` for no cap). `options.rpcUrls` overrides the RPC the client uses for Permit2 nonce and allowance reads.
